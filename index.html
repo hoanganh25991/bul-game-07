@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Game Đi Ngang - Lính Kiếm</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- HUD -->
+    <div id="hud">
+      <div id="progress">
+        <div id="progress-bar"></div>
+        <span id="progress-text">0%</span>
+      </div>
+      <div id="hint">
+        Phím: ← → để đi | ↑ để nhảy | Space để chém
+      </div>
+    </div>
+
+    <!-- Game Canvas -->
+    <canvas id="game" width="960" height="540" aria-label="Game canvas"></canvas>
+
+    <!-- Start Screen: chọn kiểu điều khiển -->
+    <div id="startScreen" class="overlay visible" role="dialog" aria-modal="true">
+      <div class="panel">
+        <h1>Lính Kiếm Phiêu Lưu</h1>
+        <p>Chọn kiểu điều khiển khi chơi trên màn hình cảm ứng (bàn phím luôn hoạt động):</p>
+        <div class="choices">
+          <button id="choose-joystick" class="primary">Joystick ảo</button>
+          <button id="choose-buttons" class="secondary">Hai nút đi tới/đi lui</button>
+        </div>
+        <p class="note">
+          Trên bàn phím: dùng các phím ← → để di chuyển, ↑ để nhảy, Space để tấn công.
+        </p>
+      </div>
+    </div>
+
+    <!-- Finish Screen -->
+    <div id="finishScreen" class="overlay">
+      <div class="panel">
+        <h1>Hoàn thành!</h1>
+        <p>Bạn đã đạt 100% tiến độ.</p>
+        <button id="replay" class="primary">Chơi lại</button>
+      </div>
+    </div>
+
+    <!-- Touch Controls: Joystick -->
+    <div id="controls-joystick" class="controls hidden" aria-hidden="true">
+      <div class="left-controls">
+        <div id="joystick-base">
+          <div id="joystick-stick"></div>
+        </div>
+      </div>
+      <div class="right-controls">
+        <button id="btn-jump-joy" class="btn action">Nhảy</button>
+        <button id="btn-attack-joy" class="btn attack">Chém</button>
+      </div>
+    </div>
+
+    <!-- Touch Controls: Two Buttons -->
+    <div id="controls-buttons" class="controls hidden" aria-hidden="true">
+      <div class="left-controls">
+        <button id="btn-left" class="btn wide">←</button>
+        <button id="btn-right" class="btn wide">→</button>
+      </div>
+      <div class="right-controls">
+        <button id="btn-jump" class="btn action">Nhảy</button>
+        <button id="btn-attack" class="btn attack">Chém</button>
+      </div>
+    </div>
+
+    <script src="game.js" defer></script>
+  </body>
+</html>
