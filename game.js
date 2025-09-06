@@ -1,5 +1,5 @@
 /*
-  Game Đi Ngang - Lính Kiếm
+  chiến thuật tấn công
   Điều khiển:
     - Bàn phím: ← → để di chuyển, ↑ để nhảy, Space để tấn công
     - Cảm ứng:
@@ -284,7 +284,7 @@
     id: -1,
     cx: 0,
     cy: 0,
-    maxR: 50,
+    maxR: 40,
     dead: 8,
     dx: 0,
     dy: 0

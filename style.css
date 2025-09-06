@@ -220,7 +220,7 @@ body {
 
 /* Buttons */
 .btn.wide {
-  min-width: 68px;
+  min-width: 56px;
 }
 
 .btn {
@@ -247,11 +247,18 @@ body {
   font-weight: 800;
 }
 
+/* Smaller left/right buttons on touch controls */
+.controls .left-controls .btn.wide {
+  padding: 10px 12px;
+  font-size: 16px;
+  min-width: 56px;
+}
+
 /* Joystick */
 #joystick-base {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -263,8 +270,8 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 64px;
-  height: 64px;
+  width: 52px;
+  height: 52px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
   background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
@@ -289,12 +296,12 @@ body {
     font-size: 16px;
   }
   #joystick-base {
-    width: 100px;
-    height: 100px;
+    width: 88px;
+    height: 88px;
   }
   #joystick-stick {
-    width: 54px;
-    height: 54px;
+    width: 48px;
+    height: 48px;
   }
 }
 
@@ -307,11 +314,11 @@ body {
     min-width: 58px;
   }
   #joystick-base {
-    width: 90px;
-    height: 90px;
+    width: 80px;
+    height: 80px;
   }
   #joystick-stick {
-    width: 50px;
-    height: 50px;
+    width: 44px;
+    height: 44px;
   }
 }
