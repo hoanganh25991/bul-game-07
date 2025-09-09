@@ -82,6 +82,37 @@ body {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
+/* HP Bar */
+#hp {
+  position: relative;
+  flex: 0 0 180px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+#hp-bar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #78f0b2 0%, var(--jump) 100%);
+  transition: width 160ms ease;
+  box-shadow: 0 0 10px #78f0b2;
+}
+
+#hp-text {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: #001a0f;
+  font-weight: 800;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
 #hint {
   flex: 0 0 auto;
   color: var(--muted);
@@ -92,6 +123,40 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(6px);
   pointer-events: auto;
+}
+
+/* HP group: đặt HP và nút bản đồ cùng hàng và cách nhau */
+#hpGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* tạo khoảng cách an toàn */
+}
+
+/* Map Button placed after HP bar, spaced */
+#mapBtn {
+  pointer-events: auto;
+  margin-left: 16px; /* cách HP một khoảng */
+}
+#mapBtn .hp-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 800;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ff9aa2, var(--attack)); /* đỏ: cục máu */
+  color: #220202;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.35), inset 0 0 12px rgba(255, 255, 255, 0.08);
+}
+
+/* Highlight current level in map overlay */
+.choices.levels .selected {
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+  color: #071223;
+  box-shadow: 0 10px 24px rgba(82, 208, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.35);
 }
 
 /* Canvas */
@@ -186,6 +251,25 @@ body {
 }
 .secondary:hover { transform: translateY(-1px); }
 
+/* Start screen selectors */
+.choices.chars, .choices.levels { gap: 8px; }
+.char-btn.selected, .level-btn.selected {
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+  color: #071223;
+  box-shadow: 0 10px 24px rgba(82, 208, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+.char-btn[disabled], .level-btn[disabled] {
+  opacity: 0.55;
+  filter: grayscale(0.3);
+  cursor: not-allowed;
+}
+.primary:disabled, .secondary:disabled, .btn:disabled {
+  opacity: 0.6;
+  filter: saturate(0.7);
+  cursor: not-allowed;
+}
+
 /* Finish */
 #finishScreen .panel h1 {
   color: #fff;
@@ -252,6 +336,11 @@ body {
   padding: 10px 12px;
   font-size: 16px;
   min-width: 56px;
+  /* Match joystick style (accent gradient, darker text, brighter border/shadow) */
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+  color: #071223;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 6px 18px rgba(82, 208, 255, 0.35);
 }
 
 /* Joystick */

@@ -13,9 +13,14 @@
         <div id="progress-bar"></div>
         <span id="progress-text">0%</span>
       </div>
-      <div id="hint">
-        Phím: ← → để đi | ↑ để nhảy | Space để chém
+      <div id="hpGroup">
+        <div id="hp">
+          <div id="hp-bar"></div>
+          <span id="hp-text">HP 100%</span>
+        </div>
+        <button id="mapBtn" class="secondary" aria-label="Bản đồ">Bản đồ <span id="mapHP" class="hp-badge">HP 100%</span></button>
       </div>
+      <div id="hint" aria-hidden="true"></div>
     </div>
 
     <!-- Game Canvas -->
@@ -25,13 +30,27 @@
     <div id="startScreen" class="overlay visible" role="dialog" aria-modal="true">
       <div class="panel">
         <h1>chiến thuật tấn công</h1>
-        <p>Chọn kiểu điều khiển khi chơi trên màn hình cảm ứng (bàn phím luôn hoạt động):</p>
+
+        <h2>Chọn nhân vật</h2>
+        <div class="choices chars">
+          <button class="secondary char-btn" data-char="pistol">Súng lục</button>
+          <button class="secondary char-btn" data-char="rifle">Súng trường</button>
+          <button class="secondary char-btn" data-char="flame">Súng bắn lửa</button>
+          <button class="secondary char-btn" data-char="bomber">Ném bom</button>
+          <button class="secondary char-btn" data-char="laser">Súng laser</button>
+          <button class="secondary char-btn" data-char="mgun">Súng máy</button>
+          <button class="secondary char-btn" data-char="rocket">Súng bắn tên lửa</button>
+          <button class="secondary char-btn" data-char="sword">Kiếm</button>
+        </div>
+
+
+        <h2>Chọn điều khiển</h2>
         <div class="choices">
-          <button id="choose-joystick" class="primary">Joystick ảo</button>
-          <button id="choose-buttons" class="secondary">Hai nút đi tới/đi lui</button>
+          <button id="choose-joystick" class="primary" disabled>Joystick ảo</button>
+          <button id="choose-buttons" class="secondary" disabled>Hai nút đi tới/đi lui</button>
         </div>
         <p class="note">
-          Trên bàn phím: dùng các phím ← → để di chuyển, ↑ để nhảy, Space để tấn công.
+          Mẹo: trên màn hình cảm ứng, dùng các nút ← → để di chuyển, ↑ để nhảy, ⚔ để tấn công.
         </p>
       </div>
     </div>
@@ -39,9 +58,39 @@
     <!-- Finish Screen -->
     <div id="finishScreen" class="overlay">
       <div class="panel">
-        <h1>Hoàn thành!</h1>
-        <p>Bạn đã đạt 100% tiến độ.</p>
+        <h1 id="finishTitle">Hoàn thành!</h1>
+        <p id="finishDesc">Bạn đã đạt 1.000.000% tiến độ.</p>
         <button id="replay" class="primary">Chơi lại</button>
+      </div>
+    </div>
+
+    <!-- Level Banner -->
+    <div id="levelBanner" class="overlay">
+      <div class="panel">
+        <h1 id="levelText">Màn 2</h1>
+      </div>
+    </div>
+
+    <!-- Map Overlay -->
+    <div id="mapOverlay" class="overlay" aria-hidden="true">
+      <div class="panel">
+        <h2>Bản đồ</h2>
+        <div id="mapLevels" class="choices levels"></div>
+        <div class="choices">
+          <button id="mapClose" class="secondary">Đóng</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skill Screen -->
+    <div id="skillScreen" class="overlay">
+      <div class="panel">
+        <h2>Chọn kỹ năng</h2>
+        <div class="choices skills">
+          <button id="skill-lightning" class="primary">Sấm sét</button>
+          <button id="skill-turret" class="secondary">Súng máy</button>
+          <button id="skill-team" class="secondary">Tổ đội</button>
+        </div>
       </div>
     </div>
 
