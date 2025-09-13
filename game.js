@@ -136,7 +136,7 @@
   const ATTACK_LABELS = {
     pistol: "Bắn súng lục",
     rifle: "Bắn súng trường",
-    flame: "Súng bắn lửa",
+    flame: "súng phun lửa",
     bomber: "Ném bom",
     laser: "Tia laser toàn màn hình",
     mgun: "Súng máy",
@@ -330,6 +330,8 @@
           alive: true,
           type,
           didSlashWave: false,
+          hp: 100,
+          maxHP: 100,
           // combat
           attacking: false,
           attackTimer: 0,
@@ -360,19 +362,7 @@
   }
 
   function applyLightning() {
-    let defeated = 0;
-    for (const e of enemies) {
-      if (e.alive) {
-        e.alive = false;
-        e.respawnTimer = 2;
-        defeated++;
-      }
-    }
-    if (defeated > 0) {
-      kills += defeated;
-      checkSkillPause();
-    }
-    lightningFlashTimer = 0.25;
+    spawnAllies(1, "mage");
   }
 
   function resumeAfterSkill() {
@@ -382,7 +372,7 @@
   }
 
   // Allies
-  function spawnAllies(n) {
+  function spawnAllies(n, type = "sword") {
     for (let i = 0; i < n; i++) {
       allies.push({
         x: player.x - 40 - i * 20,
@@ -393,19 +383,48 @@
         vy: 0,
         onGround: true,
         facing: 1,
-        color: "#2a2f5a",
+        color: type === "mage" ? "#4a4a8a" : "#2a2f5a",
         attacking: false,
         attackTimer: 0,
         attackDuration: 0.22,
         attackCooldown: 0.5,
         attackCooldownTimer: 0,
-        jumpVel: 680
+        jumpVel: 680,
+        type
       });
     }
   }
 
   function updateAllies(dt) {
     for (const a of allies) {
+      if (a.type === "mage") {
+        // Mage casts lightning every 3 seconds
+        if (!a.lightningCooldown) a.lightningCooldown = 3;
+        a.lightningCooldown -= dt;
+        if (a.lightningCooldown <= 0) {
+          // Find nearest enemy
+          let nearest = null;
+          let minDist = 1e9;
+          for (const e of enemies) {
+            if (!e.alive) continue;
+            const d = Math.abs(e.x - a.x);
+            if (d < minDist) {
+              minDist = d;
+              nearest = e;
+            }
+          }
+          if (nearest) {
+            nearest.alive = false;
+            nearest.respawnTimer = 2;
+            kills += 1;
+            checkSkillPause();
+          }
+          a.lightningCooldown = 3;
+        }
+        continue;
+      }
+
+      // Sword ally logic
       // Follow player or chase nearest enemy
       let targetX = player.x - 50;
       let targetEnemy = null;
@@ -510,44 +529,59 @@
         ctx.fillRect(ax + a.w - 8, armY + 2, 6, 12);
       }
 
-      // Sword
-      ctx.strokeStyle = "#c7d2ff";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      if (a.facing > 0) {
-        ctx.moveTo(ax + a.w + 4, armY);
-        ctx.lineTo(ax + a.w + 24, armY - 16);
-      } else {
-        ctx.moveTo(ax - 4, armY);
-        ctx.lineTo(ax - 24, armY - 16);
-      }
-      ctx.stroke();
-
-      // Slash effect
-      if (a.attacking) {
-        const t = a.attackTimer / a.attackDuration;
-        const swing = a.facing > 0 ? 1 : -1;
-        const cx = ax + a.w / 2 + swing * 22;
-        const cy = ay + 18;
-        const startAng = swing > 0 ? (-20 * Math.PI) / 180 : (200 * Math.PI) / 180;
-        const endAng = swing > 0 ? (120 * Math.PI) / 180 : (340 * Math.PI) / 180;
-        const ang = startAng + (endAng - startAng) * t;
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(ang);
-        const alpha = 0.55 * (1 - t);
-        const grad = ctx.createLinearGradient(0, 0, swing * 80, 0);
-        grad.addColorStop(0, `rgba(255,255,255,${alpha})`);
-        grad.addColorStop(1, `rgba(154,182,255,${alpha})`);
-        ctx.fillStyle = grad;
+      if (a.type === "mage") {
+        // Staff
+        ctx.strokeStyle = "#aaffaa";
+        ctx.lineWidth = 4;
         ctx.beginPath();
-        ctx.moveTo(0, -4);
-        ctx.lineTo(80 * swing, -10);
-        ctx.lineTo(80 * swing, 10);
-        ctx.lineTo(0, 4);
-        ctx.closePath();
+        ctx.moveTo(ax + a.w / 2, ay + 18);
+        ctx.lineTo(ax + a.w / 2, ay - 10);
+        ctx.stroke();
+        // Orb
+        ctx.fillStyle = "#ffff88";
+        ctx.beginPath();
+        ctx.arc(ax + a.w / 2, ay - 12, 4, 0, Math.PI * 2);
         ctx.fill();
-        ctx.restore();
+      } else {
+        // Sword
+        ctx.strokeStyle = "#c7d2ff";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        if (a.facing > 0) {
+          ctx.moveTo(ax + a.w + 4, armY);
+          ctx.lineTo(ax + a.w + 24, armY - 16);
+        } else {
+          ctx.moveTo(ax - 4, armY);
+          ctx.lineTo(ax - 24, armY - 16);
+        }
+        ctx.stroke();
+
+        // Slash effect
+        if (a.attacking) {
+          const t = a.attackTimer / a.attackDuration;
+          const swing = a.facing > 0 ? 1 : -1;
+          const cx = ax + a.w / 2 + swing * 22;
+          const cy = ay + 18;
+          const startAng = swing > 0 ? (-20 * Math.PI) / 180 : (200 * Math.PI) / 180;
+          const endAng = swing > 0 ? (120 * Math.PI) / 180 : (340 * Math.PI) / 180;
+          const ang = startAng + (endAng - startAng) * t;
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(ang);
+          const alpha = 0.55 * (1 - t);
+          const grad = ctx.createLinearGradient(0, 0, swing * 80, 0);
+          grad.addColorStop(0, `rgba(255,255,255,${alpha})`);
+          grad.addColorStop(1, `rgba(154,182,255,${alpha})`);
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.moveTo(0, -4);
+          ctx.lineTo(80 * swing, -10);
+          ctx.lineTo(80 * swing, 10);
+          ctx.lineTo(0, 4);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
       }
     }
   }
@@ -612,10 +646,13 @@
             if (b.splashRadius) {
               explodeAt(b.x, b.y, b.splashRadius);
             } else {
-              e.alive = false;
-              e.respawnTimer = 2;
-              kills += 1;
-              checkSkillPause();
+              e.hp -= 5;
+              if (e.hp <= 0) {
+                e.alive = false;
+                e.respawnTimer = 2;
+                kills += 1;
+                checkSkillPause();
+              }
             }
             remove = true;
             break;
@@ -721,9 +758,12 @@
       const ex = e.x + e.w / 2;
       const ey = e.y + e.h / 2;
       if (Math.hypot(ex - x, ey - y) <= r) {
-        e.alive = false;
-        e.respawnTimer = 2;
-        defeated++;
+        e.hp -= 20;
+        if (e.hp <= 0) {
+          e.alive = false;
+          e.respawnTimer = 2;
+          defeated++;
+        }
       }
     }
     if (defeated > 0) {
@@ -770,7 +810,7 @@
           const sp = 260 + Math.random() * 120;
           const vy = (Math.random() * 2 - 1) * 40;
           // gần hơn: thời gian sống ngắn và tốc độ thấp
-          spawnPlayerBullet(sp * dir, vy, 0.12, { color: "#ffae73", w: 8, h: 6 });
+          spawnPlayerBullet(sp * dir, vy, 0.15, { color: "#ffae73", w: 8, h: 6 });
         }
         break;
       case "rocket":
@@ -788,10 +828,13 @@
         break;
       case "mgun":
         {
-          // Bắn 1 viên mỗi nhịp nhưng rất nhanh (giữ để bắn liên tục)
-          const sp = 1050 + Math.random() * 120;
-          const vy = (Math.random() * 2 - 1) * 30;
-          spawnPlayerBullet(sp * dir, vy, 0.5);
+          if (player.mgunAmmo > 0) {
+            // Bắn 1 viên mỗi nhịp nhưng rất nhanh (giữ để bắn liên tục)
+            const sp = 1050 + Math.random() * 120;
+            const vy = (Math.random() * 2 - 1) * 30;
+            spawnPlayerBullet(sp * dir, vy, 0.5);
+            player.mgunAmmo--;
+          }
         }
         break;
     }
@@ -887,7 +930,10 @@
     attackDuration: 0.22, // s
     attackCooldown: 0.28, // s
     attackCooldownTimer: 0,
-    didSlashWave: false
+    didSlashWave: false,
+
+    // Ammo for machine gun
+    mgunAmmo: 1000000
   };
 
   // Camera
@@ -1286,6 +1332,7 @@
       e.attackCooldownTimer = 0;
       e.didSlashWave = false;
       e.y = world.floorY - e.h;
+      e.hp = e.maxHP || 100;
     }
 
     // Reset skills/assists
@@ -1296,13 +1343,14 @@
     allies.length = 0;
     turrets.length = 0;
     bullets.length = 0;
+    player.mgunAmmo = 1000000;
   }
 
   // Progress UI
   function setProgress(pct) {
     const v = clamp(pct, 0, 1_000_000);
     progressBar.style.width = `${(v / 10000).toFixed(2)}%`;
-    progressText.textContent = `${v.toFixed(0)}%`;
+    progressText.textContent = `${pct.toFixed(0)}%`;
   }
 
   function computeProgress() {
@@ -1565,16 +1613,20 @@
           e.attackTimer = 0;
           e.attackCooldownTimer = 0;
           e.respawnTimer = 0;
+          e.hp = e.maxHP || 100;
         }
         continue;
       }
 
-      // Player attack -> defeat enemy
+      // Player attack -> damage enemy
       if (atk && rectsIntersect({ x: e.x, y: e.y, w: e.w, h: e.h }, atk)) {
-        e.alive = false;
-        e.respawnTimer = 2;
-        kills += 1;
-        checkSkillPause();
+        e.hp -= 10;
+        if (e.hp <= 0) {
+          e.alive = false;
+          e.respawnTimer = 2;
+          kills += 1;
+          checkSkillPause();
+        }
         continue;
       }
 
@@ -1946,13 +1998,13 @@
         }
         ctx.stroke();
       } else if (player.weapon === "pistol") {
-        const hx = player.facing > 0 ? (px + player.w + 2) : (px - 12);
+        const hx = player.facing > 0 ? (px + player.w + 2) : (px - 22);
         const hy = py + 16;
-        ctx.fillStyle = "#ddd";
-        ctx.fillRect(hx, hy, 12, 4);
+        ctx.fillStyle = "#ccc";
+        ctx.fillRect(hx, hy, 22, 4);
         if (player.attacking) {
           ctx.fillStyle = "#ffe08a";
-          ctx.fillRect(hx + (player.facing > 0 ? 12 : -4), hy - 2, 4, 8);
+          ctx.fillRect(hx + (player.facing > 0 ? 22 : -4), hy - 2, 4, 8);
         }
       } else if (player.weapon === "rifle") {
         const hx = player.facing > 0 ? (px + player.w + 2) : (px - 22);
@@ -1964,13 +2016,13 @@
           ctx.fillRect(hx + (player.facing > 0 ? 22 : -4), hy - 2, 4, 8);
         }
       } else if (player.weapon === "mgun") {
-        const hx = player.facing > 0 ? (px + player.w + 2) : (px - 24);
+        const hx = player.facing > 0 ? (px + player.w + 2) : (px - 22);
         const hy = py + 16;
-        ctx.fillStyle = "#aaa";
-        ctx.fillRect(hx, hy - 1, 24, 6);
+        ctx.fillStyle = "#ccc";
+        ctx.fillRect(hx, hy, 22, 4);
         if (player.attacking) {
           ctx.fillStyle = "#ffd166";
-          ctx.fillRect(hx + (player.facing > 0 ? 24 : -4), hy - 2, 4, 8);
+          ctx.fillRect(hx + (player.facing > 0 ? 22 : -4), hy - 2, 4, 8);
         }
       } else if (player.weapon === "archer") {
         // simple bow shape
@@ -1998,43 +2050,40 @@
         }
         ctx.stroke();
       } else if (player.weapon === "flame") {
-        const hx = player.facing > 0 ? (px + player.w + 2) : (px - 18);
+        const hx = player.facing > 0 ? (px + player.w + 2) : (px - 22);
         const hy = py + 16;
-        ctx.fillStyle = "#888";
-        ctx.fillRect(hx, hy - 1, 18, 6);
-        if (player.attacking) {
-          ctx.fillStyle = "rgba(255,120,0,0.8)";
-          const fx = hx + (player.facing > 0 ? 18 : -12);
-          ctx.beginPath();
-          ctx.ellipse(fx, hy + 2, 12, 6, 0, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      } else if (player.weapon === "rocket") {
-        const hx = player.facing > 0 ? (px + player.w + 2) : (px - 20);
-        const hy = py + 16;
-        ctx.fillStyle = "#cc4444";
-        ctx.fillRect(hx, hy - 1, 20, 6);
+        ctx.fillStyle = "#ccc";
+        ctx.fillRect(hx, hy, 22, 4);
         if (player.attacking) {
           ctx.fillStyle = "#ffd166";
-          ctx.fillRect(hx + (player.facing > 0 ? 20 : -4), hy - 2, 4, 8);
+          ctx.fillRect(hx + (player.facing > 0 ? 22 : -4), hy - 2, 4, 8);
+        }
+      } else if (player.weapon === "rocket") {
+        const hx = player.facing > 0 ? (px + player.w + 2) : (px - 22);
+        const hy = py + 16;
+        ctx.fillStyle = "#ccc";
+        ctx.fillRect(hx, hy, 22, 4);
+        if (player.attacking) {
+          ctx.fillStyle = "#ffd166";
+          ctx.fillRect(hx + (player.facing > 0 ? 22 : -4), hy - 2, 4, 8);
         }
       } else if (player.weapon === "bomber") {
-        const hx = player.facing > 0 ? (px + player.w + 2) : (px - 16);
+        const hx = player.facing > 0 ? (px + player.w + 2) : (px - 22);
         const hy = py + 16;
-        ctx.fillStyle = "#aa8844";
-        ctx.fillRect(hx, hy - 1, 16, 6);
+        ctx.fillStyle = "#ccc";
+        ctx.fillRect(hx, hy, 22, 4);
         if (player.attacking) {
-          ctx.fillStyle = "#ffaa66";
-          ctx.fillRect(hx + (player.facing > 0 ? 16 : -4), hy - 2, 4, 8);
+          ctx.fillStyle = "#ffd166";
+          ctx.fillRect(hx + (player.facing > 0 ? 22 : -4), hy - 2, 4, 8);
         }
       } else if (player.weapon === "laser") {
-        const hx = player.facing > 0 ? (px + player.w + 2) : (px - 14);
+        const hx = player.facing > 0 ? (px + player.w + 2) : (px - 22);
         const hy = py + 16;
-        ctx.fillStyle = "#bbbbbb";
-        ctx.fillRect(hx, hy - 1, 14, 6);
+        ctx.fillStyle = "#ccc";
+        ctx.fillRect(hx, hy, 22, 4);
         if (player.attacking) {
-          ctx.fillStyle = "rgba(150,255,255,0.8)";
-          ctx.fillRect(hx + (player.facing > 0 ? 14 : -4), hy - 2, 4, 8);
+          ctx.fillStyle = "#ffd166";
+          ctx.fillRect(hx + (player.facing > 0 ? 22 : -4), hy - 2, 4, 8);
         }
       } else if (player.weapon === "tank") {
         // unreachable here do to outer guard, kept for reference
